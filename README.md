@@ -2,6 +2,8 @@
 
 Feature preparation has a separate [workspace](feature_workspace/README.md). Keep source datasets in `data/` as inputs and write derived tables only under `feature_workspace/generated/`, using the checked paths in `feature_workspace/paths.py`.
 
+Reconstruct transaction-level amounts/assets and conversion counts for all three splits with `.venv/bin/python -m feature_workspace.prepare_transactions`. See the [conversion summary](reports/transaction_preparation.md) for measured counts, asset pairs and sample calculations. This preparation is label-free and does not retrain the baseline.
+
 The current implementation evaluates the supplied starter logistic regression using only `data/traning_data/train/`. It does not score the separate practice or test datasets. No standalone organiser `baseline.py` exists in the supplied repository: the reference implementation is `data/traning_data/starter_notebook.ipynb`, with `payments.py` for USD payment reconstruction. Our executable adaptation is `scripts/baseline.py`.
 
 ## Reproduce
