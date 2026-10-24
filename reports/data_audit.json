@@ -1,0 +1,971 @@
+{
+  "command": "python3 scripts/audit_data.py",
+  "versions": {
+    "pandas": "2.3.0",
+    "numpy": "2.2.6",
+    "pyarrow": "23.0.0"
+  },
+  "splits": {
+    "train": {
+      "path": "data/traning_data/train",
+      "tables": {
+        "transactions": {
+          "rows": 40131,
+          "columns": 26,
+          "schema": {
+            "LEDGER_INDEX": "decimal128(38, 0)",
+            "TIMESTAMP": "decimal128(38, 0)",
+            "DATETIME": "timestamp[ms, tz=UTC]",
+            "LEDGER_HASH": "string",
+            "TRANSACTION_HASH": "string",
+            "TRANSACTION_INDEX": "decimal128(38, 0)",
+            "ACCOUNT": "string",
+            "TRANSACTION_TYPE": "string",
+            "SOURCE_FEE": "decimal128(38, 0)",
+            "FEE": "double",
+            "SEQUENCE": "decimal128(38, 0)",
+            "ACCOUNT_TRANSACTION_ID": "string",
+            "FLAGS": "decimal128(38, 0)",
+            "LAST_LEDGER_SEQUENCE": "decimal128(38, 0)",
+            "MEMOS": "string",
+            "SIGNERS": "string",
+            "SOURCE_TAG": "decimal128(38, 0)",
+            "SIGNING_PUB_KEY": "string",
+            "TICKET_SEQUENCE": "decimal128(38, 0)",
+            "TXN_SIGNATURE": "string",
+            "TRANSACTION_RESULT": "string",
+            "DELIVERED_AMOUNT": "string",
+            "SUCCESS": "bool",
+            "EXTRA_TRANSACTION_FIELDS": "string",
+            "DATE_CREATED": "timestamp[ms, tz=UTC]",
+            "DATE_UPDATED": "timestamp[ms, tz=UTC]"
+          },
+          "missing": {
+            "LEDGER_INDEX": 0,
+            "TIMESTAMP": 0,
+            "DATETIME": 0,
+            "LEDGER_HASH": 0,
+            "TRANSACTION_HASH": 0,
+            "TRANSACTION_INDEX": 0,
+            "ACCOUNT": 0,
+            "TRANSACTION_TYPE": 0,
+            "SOURCE_FEE": 0,
+            "FEE": 0,
+            "SEQUENCE": 0,
+            "ACCOUNT_TRANSACTION_ID": 40131,
+            "FLAGS": 0,
+            "LAST_LEDGER_SEQUENCE": 0,
+            "MEMOS": 40131,
+            "SIGNERS": 40131,
+            "SOURCE_TAG": 40131,
+            "SIGNING_PUB_KEY": 40131,
+            "TICKET_SEQUENCE": 40131,
+            "TXN_SIGNATURE": 40131,
+            "TRANSACTION_RESULT": 0,
+            "DELIVERED_AMOUNT": 0,
+            "SUCCESS": 0,
+            "EXTRA_TRANSACTION_FIELDS": 0,
+            "DATE_CREATED": 0,
+            "DATE_UPDATED": 0
+          },
+          "distinct": {
+            "LEDGER_INDEX": 33388,
+            "TIMESTAMP": 33388,
+            "DATETIME": 33388,
+            "LEDGER_HASH": 33388,
+            "TRANSACTION_HASH": 40131,
+            "TRANSACTION_INDEX": 7,
+            "ACCOUNT": 676,
+            "TRANSACTION_TYPE": 1,
+            "SOURCE_FEE": 3,
+            "FEE": 3,
+            "SEQUENCE": 216,
+            "ACCOUNT_TRANSACTION_ID": 0,
+            "FLAGS": 1,
+            "LAST_LEDGER_SEQUENCE": 33388,
+            "MEMOS": 0,
+            "SIGNERS": 0,
+            "SOURCE_TAG": 0,
+            "SIGNING_PUB_KEY": 0,
+            "TICKET_SEQUENCE": 0,
+            "TXN_SIGNATURE": 0,
+            "TRANSACTION_RESULT": 1,
+            "DELIVERED_AMOUNT": 40131,
+            "SUCCESS": 1,
+            "EXTRA_TRANSACTION_FIELDS": 40131,
+            "DATE_CREATED": 33388,
+            "DATE_UPDATED": 33388
+          }
+        },
+        "transfers": {
+          "rows": 60557,
+          "columns": 16,
+          "schema": {
+            "LEDGER_INDEX": "decimal128(38, 0)",
+            "TIMESTAMP": "decimal128(38, 0)",
+            "DATETIME": "timestamp[ms, tz=UTC]",
+            "LEDGER_HASH": "string",
+            "TRANSACTION_INDEX": "decimal128(38, 0)",
+            "TRANSACTION_HASH": "string",
+            "TRANSFER_TYPE": "string",
+            "TRANSFER_INDEX": "decimal128(19, 0)",
+            "FROM_ADDRESS": "string",
+            "TO_ADDRESS": "string",
+            "TOKEN_ADDRESS": "string",
+            "SYMBOL": "string",
+            "SOURCE_VALUE": "double",
+            "VALUE": "double",
+            "DATE_CREATED": "timestamp[ms, tz=UTC]",
+            "DATE_UPDATED": "timestamp[ms, tz=UTC]"
+          },
+          "missing": {
+            "LEDGER_INDEX": 0,
+            "TIMESTAMP": 0,
+            "DATETIME": 0,
+            "LEDGER_HASH": 0,
+            "TRANSACTION_INDEX": 0,
+            "TRANSACTION_HASH": 0,
+            "TRANSFER_TYPE": 0,
+            "TRANSFER_INDEX": 0,
+            "FROM_ADDRESS": 0,
+            "TO_ADDRESS": 0,
+            "TOKEN_ADDRESS": 0,
+            "SYMBOL": 0,
+            "SOURCE_VALUE": 0,
+            "VALUE": 0,
+            "DATE_CREATED": 0,
+            "DATE_UPDATED": 0
+          },
+          "distinct": {
+            "LEDGER_INDEX": 33388,
+            "TIMESTAMP": 33388,
+            "DATETIME": 33388,
+            "LEDGER_HASH": 33388,
+            "TRANSACTION_INDEX": 7,
+            "TRANSACTION_HASH": 40131,
+            "TRANSFER_TYPE": 2,
+            "TRANSFER_INDEX": 3,
+            "FROM_ADDRESS": 676,
+            "TO_ADDRESS": 700,
+            "TOKEN_ADDRESS": 3,
+            "SYMBOL": 4,
+            "SOURCE_VALUE": 60552,
+            "VALUE": 60546,
+            "DATE_CREATED": 33388,
+            "DATE_UPDATED": 33388
+          }
+        },
+        "blocks": {
+          "rows": 151200,
+          "columns": 17,
+          "schema": {
+            "LEDGER_INDEX": "decimal128(38, 0)",
+            "TIMESTAMP": "decimal128(38, 0)",
+            "DATETIME": "timestamp[ms, tz=UTC]",
+            "LEDGER_HASH": "string",
+            "TRANSACTION_HASH": "string",
+            "VALIDATED": "bool",
+            "ACCOUNT_HASH": "string",
+            "TOTAL_COINS": "decimal128(38, 0)",
+            "CLOSE_FLAGS": "decimal128(38, 0)",
+            "CLOSE_TIME": "decimal128(38, 0)",
+            "CLOSE_TIME_HUMAN": "string",
+            "CLOSE_TIME_RESOLUTION": "decimal128(38, 0)",
+            "CLOSED": "bool",
+            "PARENT_CLOSE_TIME": "decimal128(38, 0)",
+            "PARENT_HASH": "string",
+            "DATE_CREATED": "timestamp[ms, tz=UTC]",
+            "DATE_UPDATED": "timestamp[ms, tz=UTC]"
+          },
+          "missing": {
+            "LEDGER_INDEX": 0,
+            "TIMESTAMP": 0,
+            "DATETIME": 0,
+            "LEDGER_HASH": 0,
+            "TRANSACTION_HASH": 0,
+            "VALIDATED": 0,
+            "ACCOUNT_HASH": 0,
+            "TOTAL_COINS": 0,
+            "CLOSE_FLAGS": 0,
+            "CLOSE_TIME": 0,
+            "CLOSE_TIME_HUMAN": 0,
+            "CLOSE_TIME_RESOLUTION": 0,
+            "CLOSED": 0,
+            "PARENT_CLOSE_TIME": 0,
+            "PARENT_HASH": 0,
+            "DATE_CREATED": 0,
+            "DATE_UPDATED": 0
+          },
+          "distinct": {
+            "LEDGER_INDEX": 151200,
+            "TIMESTAMP": 151200,
+            "DATETIME": 151200,
+            "LEDGER_HASH": 151200,
+            "TRANSACTION_HASH": 33389,
+            "VALIDATED": 1,
+            "ACCOUNT_HASH": 33389,
+            "TOTAL_COINS": 33389,
+            "CLOSE_FLAGS": 1,
+            "CLOSE_TIME": 151200,
+            "CLOSE_TIME_HUMAN": 151200,
+            "CLOSE_TIME_RESOLUTION": 1,
+            "CLOSED": 1,
+            "PARENT_CLOSE_TIME": 151200,
+            "PARENT_HASH": 151200,
+            "DATE_CREATED": 151200,
+            "DATE_UPDATED": 151200
+          }
+        }
+      },
+      "transaction_time_utc": [
+        "2026-09-01 00:05:44+00:00",
+        "2026-09-07 23:58:00+00:00"
+      ],
+      "block_time_utc": [
+        "2026-09-01 00:00:04+00:00",
+        "2026-09-08 00:00:00+00:00"
+      ],
+      "transaction_types": {
+        "Payment": 40131
+      },
+      "transaction_results": {
+        "tesSUCCESS": 40131
+      },
+      "success": {
+        "true": 40131
+      },
+      "leg_counts_per_transaction": {
+        "1": 23681,
+        "2": 12474,
+        "3": 3976
+      },
+      "transfer_types": {
+        "path_payment": 36876,
+        "direct_payment": 23681
+      },
+      "asset_leg_counts": {
+        "XRP": 20236,
+        "r99vy4o5fXhC3PwEXEpnc1f9Mss4aCzYBW:GBP": 11156,
+        "r99vy4o5fXhC3PwEXEpnc1f9Mss4aCzYBW:USD": 9867,
+        "rLeMq5iFyEhgHLfBxeu4eRQWEGGdeL8hXK:EUR": 9824,
+        "rLeMq5iFyEhgHLfBxeu4eRQWEGGdeL8hXK:USD": 9474
+      },
+      "customer_wallets": 700,
+      "all_transfer_wallets": 700,
+      "rates": {
+        "rows": 850,
+        "assets": 5,
+        "hours": 170,
+        "missing_leg_prices": 0
+      },
+      "fee_drops_counts": {
+        "10": 13492,
+        "12": 13251,
+        "15": 13388
+      },
+      "json_field_key_sets": {
+        "Amount,DeliverMax,Destination": 23681,
+        "Amount,DeliverMax,Destination,SendMax": 12474,
+        "Amount,DeliverMax,Destination,Paths,SendMax": 3976
+      },
+      "delivered_json_types": {
+        "dict": 27210,
+        "str": 12921
+      },
+      "payment_usd": {
+        "count": 40131.0,
+        "mean": 141.46939017472786,
+        "std": 232.71227331028908,
+        "min": 0.47489158548,
+        "1%": 2.7163115235776,
+        "50%": 59.444800891983,
+        "95%": 546.1313631481421,
+        "99%": 1102.4648390684279,
+        "max": 4575.674819394018
+      },
+      "checks": "All asserted integrity, timestamp, endpoint, amount-unit, rate and projection checks passed.",
+      "labels": {
+        "rows": 40131,
+        "columns": [
+          "TRANSACTION_HASH",
+          "is_suspicious",
+          "family",
+          "difficulty",
+          "scenario_id",
+          "cohort_id"
+        ],
+        "missing": {
+          "TRANSACTION_HASH": 0,
+          "is_suspicious": 0,
+          "family": 0,
+          "difficulty": 0,
+          "scenario_id": 18000,
+          "cohort_id": 20131
+        },
+        "class_counts": {
+          "0": 38881,
+          "1": 1250
+        },
+        "positive_fraction": 0.0311479903316638,
+        "difficulty_by_label": {
+          "0": {
+            "easy": 0,
+            "hard": 0,
+            "medium": 0,
+            "normal": 38881
+          },
+          "1": {
+            "easy": 800,
+            "hard": 225,
+            "medium": 225,
+            "normal": 0
+          }
+        },
+        "family_by_label": {
+          "0": {
+            "aggregate_relay": 10098,
+            "ambiguous": 0,
+            "background": 18000,
+            "bipartite": 152,
+            "chain": 66,
+            "cycle": 113,
+            "distributed_relay": 9702,
+            "fan_in": 76,
+            "fan_out": 75,
+            "fan_out_in": 152,
+            "multi_stage": 165,
+            "random": 178,
+            "stack": 104
+          },
+          "1": {
+            "aggregate_relay": 102,
+            "ambiguous": 25,
+            "background": 0,
+            "bipartite": 134,
+            "chain": 73,
+            "cycle": 78,
+            "distributed_relay": 98,
+            "fan_in": 101,
+            "fan_out": 92,
+            "fan_out_in": 178,
+            "multi_stage": 173,
+            "random": 80,
+            "stack": 116
+          }
+        },
+        "unique_scenarios": 1497,
+        "unique_cohorts": 12,
+        "usd_by_label": {
+          "0": {
+            "count": 38881.0,
+            "mean": 140.38303781348088,
+            "std": 231.76786821511044,
+            "min": 0.47489158548,
+            "1%": 2.7054551312988,
+            "50%": 58.3792304928,
+            "95%": 541.788384849068,
+            "99%": 1092.9046023205708,
+            "max": 4575.674819394018
+          },
+          "1": {
+            "count": 1250.0,
+            "mean": 175.26016310084313,
+            "std": 258.2127346443735,
+            "min": 1.014986887341,
+            "1%": 6.53332328128125,
+            "50%": 86.51520633262001,
+            "95%": 689.1044277576269,
+            "99%": 1368.5977570698917,
+            "max": 2345.223516571812
+          }
+        }
+      }
+    },
+    "validation": {
+      "path": "data/traning_data/validation",
+      "tables": {
+        "transactions": {
+          "rows": 33862,
+          "columns": 26,
+          "schema": {
+            "LEDGER_INDEX": "decimal128(38, 0)",
+            "TIMESTAMP": "decimal128(38, 0)",
+            "DATETIME": "timestamp[ms, tz=UTC]",
+            "LEDGER_HASH": "string",
+            "TRANSACTION_HASH": "string",
+            "TRANSACTION_INDEX": "decimal128(38, 0)",
+            "ACCOUNT": "string",
+            "TRANSACTION_TYPE": "string",
+            "SOURCE_FEE": "decimal128(38, 0)",
+            "FEE": "double",
+            "SEQUENCE": "decimal128(38, 0)",
+            "ACCOUNT_TRANSACTION_ID": "string",
+            "FLAGS": "decimal128(38, 0)",
+            "LAST_LEDGER_SEQUENCE": "decimal128(38, 0)",
+            "MEMOS": "string",
+            "SIGNERS": "string",
+            "SOURCE_TAG": "decimal128(38, 0)",
+            "SIGNING_PUB_KEY": "string",
+            "TICKET_SEQUENCE": "decimal128(38, 0)",
+            "TXN_SIGNATURE": "string",
+            "TRANSACTION_RESULT": "string",
+            "DELIVERED_AMOUNT": "string",
+            "SUCCESS": "bool",
+            "EXTRA_TRANSACTION_FIELDS": "string",
+            "DATE_CREATED": "timestamp[ms, tz=UTC]",
+            "DATE_UPDATED": "timestamp[ms, tz=UTC]"
+          },
+          "missing": {
+            "LEDGER_INDEX": 0,
+            "TIMESTAMP": 0,
+            "DATETIME": 0,
+            "LEDGER_HASH": 0,
+            "TRANSACTION_HASH": 0,
+            "TRANSACTION_INDEX": 0,
+            "ACCOUNT": 0,
+            "TRANSACTION_TYPE": 0,
+            "SOURCE_FEE": 0,
+            "FEE": 0,
+            "SEQUENCE": 0,
+            "ACCOUNT_TRANSACTION_ID": 33862,
+            "FLAGS": 0,
+            "LAST_LEDGER_SEQUENCE": 0,
+            "MEMOS": 33862,
+            "SIGNERS": 33862,
+            "SOURCE_TAG": 33862,
+            "SIGNING_PUB_KEY": 33862,
+            "TICKET_SEQUENCE": 33862,
+            "TXN_SIGNATURE": 33862,
+            "TRANSACTION_RESULT": 0,
+            "DELIVERED_AMOUNT": 0,
+            "SUCCESS": 0,
+            "EXTRA_TRANSACTION_FIELDS": 0,
+            "DATE_CREATED": 0,
+            "DATE_UPDATED": 0
+          },
+          "distinct": {
+            "LEDGER_INDEX": 29122,
+            "TIMESTAMP": 29122,
+            "DATETIME": 29122,
+            "LEDGER_HASH": 29122,
+            "TRANSACTION_HASH": 33862,
+            "TRANSACTION_INDEX": 5,
+            "ACCOUNT": 676,
+            "TRANSACTION_TYPE": 1,
+            "SOURCE_FEE": 3,
+            "FEE": 3,
+            "SEQUENCE": 151,
+            "ACCOUNT_TRANSACTION_ID": 0,
+            "FLAGS": 1,
+            "LAST_LEDGER_SEQUENCE": 29122,
+            "MEMOS": 0,
+            "SIGNERS": 0,
+            "SOURCE_TAG": 0,
+            "SIGNING_PUB_KEY": 0,
+            "TICKET_SEQUENCE": 0,
+            "TXN_SIGNATURE": 0,
+            "TRANSACTION_RESULT": 1,
+            "DELIVERED_AMOUNT": 33862,
+            "SUCCESS": 1,
+            "EXTRA_TRANSACTION_FIELDS": 33862,
+            "DATE_CREATED": 29122,
+            "DATE_UPDATED": 29122
+          }
+        },
+        "transfers": {
+          "rows": 55897,
+          "columns": 16,
+          "schema": {
+            "LEDGER_INDEX": "decimal128(38, 0)",
+            "TIMESTAMP": "decimal128(38, 0)",
+            "DATETIME": "timestamp[ms, tz=UTC]",
+            "LEDGER_HASH": "string",
+            "TRANSACTION_INDEX": "decimal128(38, 0)",
+            "TRANSACTION_HASH": "string",
+            "TRANSFER_TYPE": "string",
+            "TRANSFER_INDEX": "decimal128(19, 0)",
+            "FROM_ADDRESS": "string",
+            "TO_ADDRESS": "string",
+            "TOKEN_ADDRESS": "string",
+            "SYMBOL": "string",
+            "SOURCE_VALUE": "double",
+            "VALUE": "double",
+            "DATE_CREATED": "timestamp[ms, tz=UTC]",
+            "DATE_UPDATED": "timestamp[ms, tz=UTC]"
+          },
+          "missing": {
+            "LEDGER_INDEX": 0,
+            "TIMESTAMP": 0,
+            "DATETIME": 0,
+            "LEDGER_HASH": 0,
+            "TRANSACTION_INDEX": 0,
+            "TRANSACTION_HASH": 0,
+            "TRANSFER_TYPE": 0,
+            "TRANSFER_INDEX": 0,
+            "FROM_ADDRESS": 0,
+            "TO_ADDRESS": 0,
+            "TOKEN_ADDRESS": 0,
+            "SYMBOL": 0,
+            "SOURCE_VALUE": 0,
+            "VALUE": 0,
+            "DATE_CREATED": 0,
+            "DATE_UPDATED": 0
+          },
+          "distinct": {
+            "LEDGER_INDEX": 29122,
+            "TIMESTAMP": 29122,
+            "DATETIME": 29122,
+            "LEDGER_HASH": 29122,
+            "TRANSACTION_INDEX": 5,
+            "TRANSACTION_HASH": 33862,
+            "TRANSFER_TYPE": 2,
+            "TRANSFER_INDEX": 3,
+            "FROM_ADDRESS": 676,
+            "TO_ADDRESS": 700,
+            "TOKEN_ADDRESS": 3,
+            "SYMBOL": 4,
+            "SOURCE_VALUE": 55893,
+            "VALUE": 55892,
+            "DATE_CREATED": 29122,
+            "DATE_UPDATED": 29122
+          }
+        },
+        "blocks": {
+          "rows": 151200,
+          "columns": 17,
+          "schema": {
+            "LEDGER_INDEX": "decimal128(38, 0)",
+            "TIMESTAMP": "decimal128(38, 0)",
+            "DATETIME": "timestamp[ms, tz=UTC]",
+            "LEDGER_HASH": "string",
+            "TRANSACTION_HASH": "string",
+            "VALIDATED": "bool",
+            "ACCOUNT_HASH": "string",
+            "TOTAL_COINS": "decimal128(38, 0)",
+            "CLOSE_FLAGS": "decimal128(38, 0)",
+            "CLOSE_TIME": "decimal128(38, 0)",
+            "CLOSE_TIME_HUMAN": "string",
+            "CLOSE_TIME_RESOLUTION": "decimal128(38, 0)",
+            "CLOSED": "bool",
+            "PARENT_CLOSE_TIME": "decimal128(38, 0)",
+            "PARENT_HASH": "string",
+            "DATE_CREATED": "timestamp[ms, tz=UTC]",
+            "DATE_UPDATED": "timestamp[ms, tz=UTC]"
+          },
+          "missing": {
+            "LEDGER_INDEX": 0,
+            "TIMESTAMP": 0,
+            "DATETIME": 0,
+            "LEDGER_HASH": 0,
+            "TRANSACTION_HASH": 0,
+            "VALIDATED": 0,
+            "ACCOUNT_HASH": 0,
+            "TOTAL_COINS": 0,
+            "CLOSE_FLAGS": 0,
+            "CLOSE_TIME": 0,
+            "CLOSE_TIME_HUMAN": 0,
+            "CLOSE_TIME_RESOLUTION": 0,
+            "CLOSED": 0,
+            "PARENT_CLOSE_TIME": 0,
+            "PARENT_HASH": 0,
+            "DATE_CREATED": 0,
+            "DATE_UPDATED": 0
+          },
+          "distinct": {
+            "LEDGER_INDEX": 151200,
+            "TIMESTAMP": 151200,
+            "DATETIME": 151200,
+            "LEDGER_HASH": 151200,
+            "TRANSACTION_HASH": 29123,
+            "VALIDATED": 1,
+            "ACCOUNT_HASH": 29123,
+            "TOTAL_COINS": 29123,
+            "CLOSE_FLAGS": 1,
+            "CLOSE_TIME": 151200,
+            "CLOSE_TIME_HUMAN": 151200,
+            "CLOSE_TIME_RESOLUTION": 1,
+            "CLOSED": 1,
+            "PARENT_CLOSE_TIME": 151200,
+            "PARENT_HASH": 151200,
+            "DATE_CREATED": 151200,
+            "DATE_UPDATED": 151200
+          }
+        }
+      },
+      "transaction_time_utc": [
+        "2026-09-10 00:04:24+00:00",
+        "2026-09-16 23:48:04+00:00"
+      ],
+      "block_time_utc": [
+        "2026-09-10 00:00:04+00:00",
+        "2026-09-17 00:00:00+00:00"
+      ],
+      "transaction_types": {
+        "Payment": 33862
+      },
+      "transaction_results": {
+        "tesSUCCESS": 33862
+      },
+      "success": {
+        "true": 33862
+      },
+      "leg_counts_per_transaction": {
+        "1": 16064,
+        "2": 13561,
+        "3": 4237
+      },
+      "transfer_types": {
+        "path_payment": 39833,
+        "direct_payment": 16064
+      },
+      "asset_leg_counts": {
+        "XRP": 20081,
+        "rwKVMHDA73raYeKwGjfMiWSjzeF59HwPxG:USD": 9832,
+        "rUz26aCT6t4jAf5Guo78dv3bXRjFNWSgQs:USD": 8746,
+        "rwKVMHDA73raYeKwGjfMiWSjzeF59HwPxG:EUR": 8740,
+        "rUz26aCT6t4jAf5Guo78dv3bXRjFNWSgQs:GBP": 8498
+      },
+      "customer_wallets": 700,
+      "all_transfer_wallets": 700,
+      "rates": {
+        "rows": 850,
+        "assets": 5,
+        "hours": 170,
+        "missing_leg_prices": 0
+      },
+      "fee_drops_counts": {
+        "10": 11101,
+        "12": 11240,
+        "15": 11521
+      },
+      "json_field_key_sets": {
+        "Amount,DeliverMax,Destination": 16064,
+        "Amount,DeliverMax,Destination,SendMax": 13561,
+        "Amount,DeliverMax,Destination,Paths,SendMax": 4237
+      },
+      "delivered_json_types": {
+        "dict": 21715,
+        "str": 12147
+      },
+      "payment_usd": {
+        "count": 33862.0,
+        "mean": 153.6523357502315,
+        "std": 245.20869946587442,
+        "min": 0.287219708296,
+        "1%": 2.7270815059618,
+        "50%": 68.438261309796,
+        "95%": 575.2056090074344,
+        "99%": 1131.9491385645024,
+        "max": 9762.783897415062
+      },
+      "checks": "All asserted integrity, timestamp, endpoint, amount-unit, rate and projection checks passed."
+    },
+    "test": {
+      "path": "data/test_data",
+      "tables": {
+        "transactions": {
+          "rows": 40101,
+          "columns": 26,
+          "schema": {
+            "LEDGER_INDEX": "decimal128(38, 0)",
+            "TIMESTAMP": "decimal128(38, 0)",
+            "DATETIME": "timestamp[ms, tz=UTC]",
+            "LEDGER_HASH": "string",
+            "TRANSACTION_HASH": "string",
+            "TRANSACTION_INDEX": "decimal128(38, 0)",
+            "ACCOUNT": "string",
+            "TRANSACTION_TYPE": "string",
+            "SOURCE_FEE": "decimal128(38, 0)",
+            "FEE": "double",
+            "SEQUENCE": "decimal128(38, 0)",
+            "ACCOUNT_TRANSACTION_ID": "string",
+            "FLAGS": "decimal128(38, 0)",
+            "LAST_LEDGER_SEQUENCE": "decimal128(38, 0)",
+            "MEMOS": "string",
+            "SIGNERS": "string",
+            "SOURCE_TAG": "decimal128(38, 0)",
+            "SIGNING_PUB_KEY": "string",
+            "TICKET_SEQUENCE": "decimal128(38, 0)",
+            "TXN_SIGNATURE": "string",
+            "TRANSACTION_RESULT": "string",
+            "DELIVERED_AMOUNT": "string",
+            "SUCCESS": "bool",
+            "EXTRA_TRANSACTION_FIELDS": "string",
+            "DATE_CREATED": "timestamp[ms, tz=UTC]",
+            "DATE_UPDATED": "timestamp[ms, tz=UTC]"
+          },
+          "missing": {
+            "LEDGER_INDEX": 0,
+            "TIMESTAMP": 0,
+            "DATETIME": 0,
+            "LEDGER_HASH": 0,
+            "TRANSACTION_HASH": 0,
+            "TRANSACTION_INDEX": 0,
+            "ACCOUNT": 0,
+            "TRANSACTION_TYPE": 0,
+            "SOURCE_FEE": 0,
+            "FEE": 0,
+            "SEQUENCE": 0,
+            "ACCOUNT_TRANSACTION_ID": 40101,
+            "FLAGS": 0,
+            "LAST_LEDGER_SEQUENCE": 0,
+            "MEMOS": 40101,
+            "SIGNERS": 40101,
+            "SOURCE_TAG": 40101,
+            "SIGNING_PUB_KEY": 40101,
+            "TICKET_SEQUENCE": 40101,
+            "TXN_SIGNATURE": 40101,
+            "TRANSACTION_RESULT": 0,
+            "DELIVERED_AMOUNT": 0,
+            "SUCCESS": 0,
+            "EXTRA_TRANSACTION_FIELDS": 0,
+            "DATE_CREATED": 0,
+            "DATE_UPDATED": 0
+          },
+          "distinct": {
+            "LEDGER_INDEX": 33321,
+            "TIMESTAMP": 33321,
+            "DATETIME": 33321,
+            "LEDGER_HASH": 33321,
+            "TRANSACTION_HASH": 40101,
+            "TRANSACTION_INDEX": 6,
+            "ACCOUNT": 676,
+            "TRANSACTION_TYPE": 1,
+            "SOURCE_FEE": 3,
+            "FEE": 3,
+            "SEQUENCE": 215,
+            "ACCOUNT_TRANSACTION_ID": 0,
+            "FLAGS": 1,
+            "LAST_LEDGER_SEQUENCE": 33321,
+            "MEMOS": 0,
+            "SIGNERS": 0,
+            "SOURCE_TAG": 0,
+            "SIGNING_PUB_KEY": 0,
+            "TICKET_SEQUENCE": 0,
+            "TXN_SIGNATURE": 0,
+            "TRANSACTION_RESULT": 1,
+            "DELIVERED_AMOUNT": 40100,
+            "SUCCESS": 1,
+            "EXTRA_TRANSACTION_FIELDS": 40101,
+            "DATE_CREATED": 33321,
+            "DATE_UPDATED": 33321
+          }
+        },
+        "transfers": {
+          "rows": 65272,
+          "columns": 16,
+          "schema": {
+            "LEDGER_INDEX": "decimal128(38, 0)",
+            "TIMESTAMP": "decimal128(38, 0)",
+            "DATETIME": "timestamp[ms, tz=UTC]",
+            "LEDGER_HASH": "string",
+            "TRANSACTION_INDEX": "decimal128(38, 0)",
+            "TRANSACTION_HASH": "string",
+            "TRANSFER_TYPE": "string",
+            "TRANSFER_INDEX": "decimal128(19, 0)",
+            "FROM_ADDRESS": "string",
+            "TO_ADDRESS": "string",
+            "TOKEN_ADDRESS": "string",
+            "SYMBOL": "string",
+            "SOURCE_VALUE": "double",
+            "VALUE": "double",
+            "DATE_CREATED": "timestamp[ms, tz=UTC]",
+            "DATE_UPDATED": "timestamp[ms, tz=UTC]"
+          },
+          "missing": {
+            "LEDGER_INDEX": 0,
+            "TIMESTAMP": 0,
+            "DATETIME": 0,
+            "LEDGER_HASH": 0,
+            "TRANSACTION_INDEX": 0,
+            "TRANSACTION_HASH": 0,
+            "TRANSFER_TYPE": 0,
+            "TRANSFER_INDEX": 0,
+            "FROM_ADDRESS": 0,
+            "TO_ADDRESS": 0,
+            "TOKEN_ADDRESS": 0,
+            "SYMBOL": 0,
+            "SOURCE_VALUE": 0,
+            "VALUE": 0,
+            "DATE_CREATED": 0,
+            "DATE_UPDATED": 0
+          },
+          "distinct": {
+            "LEDGER_INDEX": 33321,
+            "TIMESTAMP": 33321,
+            "DATETIME": 33321,
+            "LEDGER_HASH": 33321,
+            "TRANSACTION_INDEX": 6,
+            "TRANSACTION_HASH": 40101,
+            "TRANSFER_TYPE": 2,
+            "TRANSFER_INDEX": 3,
+            "FROM_ADDRESS": 676,
+            "TO_ADDRESS": 700,
+            "TOKEN_ADDRESS": 3,
+            "SYMBOL": 4,
+            "SOURCE_VALUE": 65268,
+            "VALUE": 65263,
+            "DATE_CREATED": 33321,
+            "DATE_UPDATED": 33321
+          }
+        },
+        "blocks": {
+          "rows": 151200,
+          "columns": 17,
+          "schema": {
+            "LEDGER_INDEX": "decimal128(38, 0)",
+            "TIMESTAMP": "decimal128(38, 0)",
+            "DATETIME": "timestamp[ms, tz=UTC]",
+            "LEDGER_HASH": "string",
+            "TRANSACTION_HASH": "string",
+            "VALIDATED": "bool",
+            "ACCOUNT_HASH": "string",
+            "TOTAL_COINS": "decimal128(38, 0)",
+            "CLOSE_FLAGS": "decimal128(38, 0)",
+            "CLOSE_TIME": "decimal128(38, 0)",
+            "CLOSE_TIME_HUMAN": "string",
+            "CLOSE_TIME_RESOLUTION": "decimal128(38, 0)",
+            "CLOSED": "bool",
+            "PARENT_CLOSE_TIME": "decimal128(38, 0)",
+            "PARENT_HASH": "string",
+            "DATE_CREATED": "timestamp[ms, tz=UTC]",
+            "DATE_UPDATED": "timestamp[ms, tz=UTC]"
+          },
+          "missing": {
+            "LEDGER_INDEX": 0,
+            "TIMESTAMP": 0,
+            "DATETIME": 0,
+            "LEDGER_HASH": 0,
+            "TRANSACTION_HASH": 0,
+            "VALIDATED": 0,
+            "ACCOUNT_HASH": 0,
+            "TOTAL_COINS": 0,
+            "CLOSE_FLAGS": 0,
+            "CLOSE_TIME": 0,
+            "CLOSE_TIME_HUMAN": 0,
+            "CLOSE_TIME_RESOLUTION": 0,
+            "CLOSED": 0,
+            "PARENT_CLOSE_TIME": 0,
+            "PARENT_HASH": 0,
+            "DATE_CREATED": 0,
+            "DATE_UPDATED": 0
+          },
+          "distinct": {
+            "LEDGER_INDEX": 151200,
+            "TIMESTAMP": 151200,
+            "DATETIME": 151200,
+            "LEDGER_HASH": 151200,
+            "TRANSACTION_HASH": 33322,
+            "VALIDATED": 1,
+            "ACCOUNT_HASH": 33322,
+            "TOTAL_COINS": 33322,
+            "CLOSE_FLAGS": 1,
+            "CLOSE_TIME": 151200,
+            "CLOSE_TIME_HUMAN": 151200,
+            "CLOSE_TIME_RESOLUTION": 1,
+            "CLOSED": 1,
+            "PARENT_CLOSE_TIME": 151200,
+            "PARENT_HASH": 151200,
+            "DATE_CREATED": 151200,
+            "DATE_UPDATED": 151200
+          }
+        }
+      },
+      "transaction_time_utc": [
+        "2026-09-20 00:06:36+00:00",
+        "2026-09-26 23:59:32+00:00"
+      ],
+      "block_time_utc": [
+        "2026-09-20 00:00:04+00:00",
+        "2026-09-27 00:00:00+00:00"
+      ],
+      "transaction_types": {
+        "Payment": 40101
+      },
+      "transaction_results": {
+        "tesSUCCESS": 40101
+      },
+      "success": {
+        "true": 40101
+      },
+      "leg_counts_per_transaction": {
+        "1": 19840,
+        "2": 15351,
+        "3": 4910
+      },
+      "transfer_types": {
+        "path_payment": 45432,
+        "direct_payment": 19840
+      },
+      "asset_leg_counts": {
+        "XRP": 23515,
+        "rNnBxvYbzhfnR6d8dLDRHRVVHgagj6aLVh:EUR": 10938,
+        "rNnBxvYbzhfnR6d8dLDRHRVVHgagj6aLVh:USD": 10647,
+        "rDafjsQScwoVYNW1Sg91oe1ALkvqvK2LTW:GBP": 10176,
+        "rDafjsQScwoVYNW1Sg91oe1ALkvqvK2LTW:USD": 9996
+      },
+      "customer_wallets": 700,
+      "all_transfer_wallets": 700,
+      "rates": {
+        "rows": 850,
+        "assets": 5,
+        "hours": 170,
+        "missing_leg_prices": 0
+      },
+      "fee_drops_counts": {
+        "10": 13328,
+        "12": 13495,
+        "15": 13278
+      },
+      "json_field_key_sets": {
+        "Amount,DeliverMax,Destination": 19840,
+        "Amount,DeliverMax,Destination,SendMax": 15351,
+        "Amount,DeliverMax,Destination,Paths,SendMax": 4910
+      },
+      "delivered_json_types": {
+        "dict": 25503,
+        "str": 14598
+      },
+      "payment_usd": {
+        "count": 40101.0,
+        "mean": 139.15955436107052,
+        "std": 247.8840176861538,
+        "min": 0.036968836336000004,
+        "1%": 1.969691075328,
+        "50%": 49.975958422838005,
+        "95%": 568.507413514284,
+        "99%": 1125.605133610873,
+        "max": 9592.973961827276
+      },
+      "checks": "All asserted integrity, timestamp, endpoint, amount-unit, rate and projection checks passed."
+    }
+  },
+  "checksums": {
+    "README.md": true,
+    "payments.py": true,
+    "train/blocks.parquet": true,
+    "train/labels.csv": true,
+    "train/market_rates.csv": true,
+    "train/transactions.parquet": true,
+    "train/transfers.parquet": true,
+    "validation/blocks.parquet": true,
+    "validation/market_rates.csv": true,
+    "validation/transactions.parquet": true,
+    "validation/transfers.parquet": true,
+    "starter_notebook.ipynb": true
+  },
+  "overlaps": {
+    "train/validation": {
+      "transaction_hashes": 0,
+      "wallets": 0
+    },
+    "train/test": {
+      "transaction_hashes": 0,
+      "wallets": 0
+    },
+    "validation/test": {
+      "transaction_hashes": 0,
+      "wallets": 0
+    }
+  }
+}
