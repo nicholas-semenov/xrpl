@@ -1,5 +1,7 @@
 # XRPL AML scoring: first baseline
 
+Feature preparation has a separate [workspace](feature_workspace/README.md). Keep source datasets in `data/` as inputs and write derived tables only under `feature_workspace/generated/`, using the checked paths in `feature_workspace/paths.py`.
+
 The current implementation evaluates the supplied starter logistic regression using only `data/traning_data/train/`. It does not score the separate practice or test datasets. No standalone organiser `baseline.py` exists in the supplied repository: the reference implementation is `data/traning_data/starter_notebook.ipynb`, with `payments.py` for USD payment reconstruction. Our executable adaptation is `scripts/baseline.py`.
 
 ## Reproduce
