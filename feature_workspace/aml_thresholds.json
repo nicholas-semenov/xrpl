@@ -1,0 +1,16 @@
+{
+  "fan_in_min_senders": 3,
+  "fan_out_min_receivers": 3,
+  "scatter_gather_min_intermediaries": 3,
+  "gather_scatter_min_senders": 3,
+  "gather_scatter_min_receivers": 3,
+  "min_group_usd": 100.0,
+  "min_path_leg_usd": 10.0,
+  "min_flow_ratio": 0.5,
+  "max_flow_ratio": 1.5,
+  "max_candidate_path_pairs": 5000000,
+  "max_retained_paths": 2000000,
+  "max_gather_scatter_candidates": 5000000,
+  "max_scatter_gather_path_checks": 100000000,
+  "max_witness_memberships": 100000000
+}

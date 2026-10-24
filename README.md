@@ -6,6 +6,8 @@ Reconstruct transaction-level amounts/assets and conversion counts for all three
 
 Build separate directed wallet multigraphs with `.venv/bin/python -m feature_workspace.build_wallet_graph`. Lossless chronological edge lists, wallet statistics and manifests are saved under `feature_workspace/generated/wallet_graphs_v1/`. See the [graph report](reports/wallet_graphs.md) and [workspace documentation](feature_workspace/README.md) for statistics, schemas and reusable adjacency access. No AML detectors or ML models are added by this step.
 
+The first four [AML motif descriptions](feature_workspace/AML_PATTERNS.md) are generated separately with `.venv/bin/python -m feature_workspace.prepare_aml_features`. Extended tables retain the original 15 fields, list-valued `aml_pattern` and 117 numerical features; [counts](reports/aml_patterns.md) describe behaviour rather than suspicious labels. Run correctness tests in four processes with `.venv/bin/python scripts/run_tests_parallel.py --workers 4`. No additional model is trained.
+
 The current implementation evaluates the supplied starter logistic regression using only `data/traning_data/train/`. It does not score the separate practice or test datasets. No standalone organiser `baseline.py` exists in the supplied repository: the reference implementation is `data/traning_data/starter_notebook.ipynb`, with `payments.py` for USD payment reconstruction. Our executable adaptation is `scripts/baseline.py`.
 
 ## Reproduce

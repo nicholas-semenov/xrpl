@@ -1,75 +1,72 @@
 # Project Progress — XRPL AML Scoring
 
 ## Current status
-- Stage: Features / wallet transaction graph foundation complete; baseline preserved.
-- Current objective: Preserve verified split-specific graphs for subsequent AML feature work; no pattern detectors or model training in this milestone.
-- Last verified working outcome: Three lossless directed wallet multigraphs generated and reconstructed deterministically; all 26 tests passed.
+- Stage: Features / first four descriptive AML detectors complete; baseline preserved.
+- Current objective: Preserve the extended datasets and inspect feature usefulness in a later supervised evaluation; no model training performed in this stage.
+- Last verified working outcome: All three datasets extended to 133 columns (original 15 + aml_pattern + 117 numerical features); 36 tests passed in four spawned processes.
 
 ## Completed and verified
-- Read repository instructions, supplied README, payments.py and starter notebook; no separate supplied baseline.py exists.
-- Initial audit: scripts/audit_data.py and reports/data_audit.{md,json}; all 12 supplied training-package checksums passed.
-- Train: 40,131 transactions / 60,557 raw legs; validation: 33,862 / 55,897; test: 40,101 / 65,272. Each split contains 700 wallets with disjoint addresses/hashes across splits.
-- Starter logistic baseline implemented in scripts/baseline.py; pinned environment, tests, commands and real metrics are recorded in README.md and reports/baseline_metrics.json.
-- Canonical preparation: feature_workspace/prepare_transactions.py generates all 15 fields and separately preserves detailed legs under generated/transaction_tables_v1/{split}/. The unused notebooks/ directory was removed.
-- Preparation checks pass for joins, ordered leg paths, issuer identity, normalized units, fees, hourly rates, hashes and Parquet round-trips. Every destination USD amount matches supplied payments.py.
-- Graph implementation: feature_workspace/build_wallet_graph.py provides build_wallet_graph(), load_wallet_graph(), WalletGraph.incoming()/outgoing(), split guards and statistics.
-- Generated edges.parquet, nodes.parquet and manifest.json under feature_workspace/generated/wallet_graphs_v1/{train,validation,test}/; all 15 prepared edge attributes retained exactly.
-- reports/wallet_graphs.{md,json} and generated/wallet_graphs_v1/summary.json contain measured degrees, volumes, count distributions, provenance, hashes and validation results.
-- Eight graph tests added in tests/test_wallet_graph.py. Full suite: 26 tests passed, covering parallel/reverse/self edges, sink wallets, exact attributes, temporal adjacency, labels, split separation, original records and reload corruption.
-- Graphs rebuilt identically from shuffled inputs, reloaded losslessly and rerun with existing artifacts. Original transaction and all prior preparation artifact hashes remain unchanged.
-- No AML detectors, pattern IDs, label-derived graph inputs or new ML models added. Existing baseline code, scores and model artifacts are preserved.
+- Initial audit, canonical transaction preparation and separate directed wallet graphs are preserved; original supplied data checksums still match.
+- Canonical inputs: feature_workspace/generated/transaction_tables_v1/{train,validation,test}/ with transactions.parquet and detailed transfer_legs.parquet.
+- Graph inputs: feature_workspace/generated/wallet_graphs_v1/{train,validation,test}/ with edges.parquet, nodes.parquet and manifest.json; exact payment IDs/directions/amounts/times retained.
+- Added feature_workspace/aml_patterns.py: IDs 1 fan-in, 2 fan-out, 3 scatter-gather, 4 gather-scatter; windows 1h, 24h, 7d and configurable label-free thresholds.
+- Added feature_workspace/prepare_aml_features.py; extended transactions saved under generated/aml_features_v1/{train,validation,test}/transactions.parquet, with exact original 15 fields and original row order.
+- aml_pattern is a sorted unique list<int8>, allowing multiple IDs or an empty list. Numerical features include per-window counts, distinct counterparties, USD flows, funding/forwarding delays, ratios, compatible paths and witness support.
+- feature_schema.json in the generated run lists numerical/categorical model inputs and excluded identifiers/list metadata. All numerical features are finite.
+- Added aml_thresholds.json, AML_PATTERNS.md, reports/aml_patterns.{md,json}; reports include counts by window, resource counters, timings, config/code/input/output hashes and interpretation limits.
+- Added 10 detector tests in tests/test_aml_patterns.py and scripts/run_tests_parallel.py. Full 36-test suite passed with --workers 4 using multiprocessing spawn.
+- Detectors preserve strict time ordering, distinct intermediaries, aggregate funding and deduplicated USD sums. Tests cover boundaries, self-payments, duplicate counterparties, overlapping IDs, annotation neutrality, resource failures and Parquet list round-trips.
+- All datasets processed twice with identical saved feature tables; differing pre-existing artifacts are refused. Previous graph/preparation inputs, baseline code/results and source data are unchanged.
+- No labels, family, scenario/cohort metadata or external data are detector inputs. No suspicious labels/probabilities or additional ML models were produced.
 
 ## Decisions and assumptions
-- Actual dataset README permits full seven-day offline graph context; future-within-window activity is not a causal live-detection benchmark.
-- One graph edge is one actual customer payment SENDER → RECEIVER, keyed by TRANSACTION_HASH; repeated pairs are separate edges.
-- Only prepared transaction tables construct the graphs. Original transaction columns are read separately to validate coverage/direction/time; labels and raw conversion legs are not parsed for graph construction.
-- Nodes are unique payment endpoints; conversion legs/intermediary counts never create extra graph nodes/edges or imply AML layering.
-- Edges and adjacency are ordered by TIMESTAMP, then hash. Equal timestamps have deterministic ordering only; a strictly later hop requires a greater timestamp.
-- IN_DEGREE/OUT_DEGREE count transaction edges; UNIQUE_IN/OUT_NEIGHBORS count counterparties. TRANSACTION_COUNT counts distinct incident hashes, with self-loops counted once.
-- Incoming USD sums DESTINATION_AMOUNT_USD; outgoing USD sums SOURCE_AMOUNT_USD. Conversion valuations can differ; fees remain separate XRP attributes.
-- Raw/processed data remain inputs; generated outputs use checked paths in feature_workspace/paths.py. Differing existing graph artifacts are refused; choose a new --run-name for changed definitions.
-- Full train graph statistics must not be reused across supervised fit/holdout boundaries; rebuild graph contexts separately from retained subsets.
-- Source/destination amounts use actual first/last executed VALUE after unit checks, not SendMax or summed conversion-leg values. Assets retain issuer identity.
+- Full seven-day offline history is permitted by the supplied README; earlier payments may acquire descriptions from later observed events.
+- One user payment remains one row/edge. Raw conversion legs and technical liquidity intermediaries are not AML graph hops.
+- Default structural thresholds: 3 distinct counterparties/intermediaries; group USD >=100; compatible two-hop leg USD >=10; flow ratio 0.5–1.5. These were fixed without targets or AP tuning.
+- Fan witnesses use anchored [T-W,T] deposits/payouts. SG uses distinct S,M,D and strictly ordered S→M→D branches with whole witness span <=W.
+- GS uses collection [T-W,C] then redistribution (C,T], with distinct donor/recipient thresholds and aggregate spent/credited flow balance. Individual deposit/payout amounts need not match.
+- Each qualifying witness tags participating transactions; final aml_pattern unions all patterns/windows. Support metrics use one deterministic strongest witness, never a fictitious combination.
+- Reused event IDs are counted once in USD totals; parallel two-hop event pairs remain separate paths. Equal timestamps cannot establish forwarding order.
+- Self-payments remain unchanged but do not supply external motif evidence. Delays use -1 when absent; ratios use zero with count features to identify missing context.
+- Original numeric values/types and asset issuer identities are preserved. Generated artifacts remain outside Git; no source data permissions changed.
+- For future CatBoost, exclude TRANSACTION_HASH/SENDER/RECEIVER/aml_pattern from predictors; use numerical per-window flags and the explicit feature schema.
+- Full-train offline features must be recomputed separately on retained fit/holdout graphs before supervised validation.
 
 ## Results and checks
-- Graph counts (nodes / edges / directed wallet pairs): train 700 / 40,131 / 22,315; validation 700 / 33,862 / 18,773; test 700 / 40,101 / 22,557.
-- Each graph: 676 unique senders, 700 unique receivers, 676 wallets with both directions, 24 incoming-only wallets; zero self-loops and zero cross-split wallet/hash intersections.
-- Incoming/outgoing USD totals: train 5,677,308.097102 / 5,684,000.818105; validation 5,202,975.393174 / 5,215,014.360740; test 5,580,437.289433 / 5,591,795.039585.
-- Mean in/out transaction degree: train 57.3300; validation 48.3743; test 57.2871. Exact histograms and min/median/percentile/max statistics are in graph reports.
-- Conversion transactions / actual steps: train 16,450 / 20,426; validation 17,798 / 22,035; test 20,261 / 25,171. Prior preparation reports are unchanged.
-- Baseline validation: seed 0 wallet split plus scenario/cohort purging; fit 4,949 / 169 positives; holdout 10,112 / 262; purged 25,070 / 819; no shared wallet/hash/group identities.
-- Baseline AP 0.08358397603315604 (100×AP 8.3583976033); ROC-AUC 0.734895570969117; Precision@1% 0.1568627451; Recall@1% 0.0610687023 (16 positives in top 102). No new AP measured.
-- Environment: Python 3.10.15; NumPy 2.2.6, pandas 2.3.0, PyArrow 23.0.0, SciPy 1.13.1, scikit-learn 1.7.2. Full dependencies pinned in requirements-baseline.txt; graphs add no dependency.
-- Working setup: python3 -m venv .venv; .venv/bin/python -m pip install --no-cache-dir -r requirements-baseline.txt.
-- Working graph command: .venv/bin/python -m feature_workspace.build_wallet_graph.
-- Working verification: .venv/bin/python -m unittest discover -s tests -v (26 passed).
-- Working preparation: .venv/bin/python -m feature_workspace.prepare_transactions.
-- Working baseline: .venv/bin/python scripts/baseline.py; repeat/score comparison commands remain in README.md.
+- Transactions / ID1 / ID2 / ID3 / ID4 (union across windows): train 40,131 / 40,131 / 40,131 / 15,607 / 39,800; validation 33,862 / 33,862 / 33,862 / 7,743 / 33,647; test 40,101 / 40,101 / 40,101 / 12,113 / 39,796.
+- 1h counts ID1/ID2/ID3/ID4: train 16,011/14,176/326/266; validation 12,447/11,034/282/169; test 15,594/14,896/312/287. Complete window breakdown is in reports/aml_patterns.json.
+- Detection runtime per split approximately 16–22 seconds; limits never reached and no sampling/truncation used. Membership counts overlap and are not suspicion metrics.
+- Existing graph counts (nodes/edges/directed pairs): train 700/40,131/22,315; validation 700/33,862/18,773; test 700/40,101/22,557. Cross-split wallet/hash intersections remain zero.
+- Baseline remains starter_logistic_wallet_seed0: AP 0.0835839760; ROC-AUC 0.7348955710; Precision@1% 0.1568627451; Recall@1% 0.0610687023. No new AP measured.
+- Baseline fit/holdout/purged: 4,949/10,112/25,070 transactions with wallet/scenario/cohort isolation; saved model and predictions remain in outputs/baseline_wallet_seed0/.
+- Python virtual environment: .venv/; Python 3.10.15 and pinned dependencies in requirements-baseline.txt. Detectors add no dependency or CatBoost installation.
+- Working feature command: .venv/bin/python -m feature_workspace.prepare_aml_features.
+- Working parallel verification: .venv/bin/python scripts/run_tests_parallel.py --workers 4 (36 passed).
+- Prior working commands: .venv/bin/python -m feature_workspace.prepare_transactions; .venv/bin/python -m feature_workspace.build_wallet_graph; .venv/bin/python scripts/baseline.py.
 
 ## Git synchronization
 - Branch/upstream: master / origin/master; origin https://github.com/nicholas-semenov/xrpl.git.
-- Last successful pull: 2026-10-24 at 62730a8, already up to date (prior audit session).
-- Current session pull skipped because pre-existing tracked .DS_Store and data/.DS_Store modifications plus untracked feature_workspace/.DS_Store were present; all preserved and excluded.
-- Last verified commit/push before graph work: 4b4e41e successfully pushed to origin/master.
-- Graph code, tests, reports, documentation and progress prepared for commit/push; final commit hash and actual outcome reported in session handoff.
-- No stash/reset/discard/force-push used. Git metadata/network writes require sandbox escalation.
+- Last successful pull: prior audit session, 2026-10-24 at 62730a8 (already up to date).
+- Current pull skipped due to pre-existing .DS_Store and data/.DS_Store modifications and untracked feature_workspace/.DS_Store. All preserved and excluded.
+- Last verified commit/push before detectors: 9faef27 successfully pushed to origin/master.
+- Detector code/config, multiprocessing runner, tests, reports, documentation and progress prepared for commit/push; final hash/outcome reported in session handoff. No destructive Git action used.
 
 ## Blockers / risks
-- No graph integrity issue found. Hash tie ordering does not establish temporal causality for equal-time events.
-- Full-week graph statistics describe supplied synthetic histories; future supervised validation must preserve fit/holdout isolation.
-- Existing baseline is one stress holdout, purging 62.47% of rows and truncating scenarios; fit has 12 hard positives and holdout 17. No independent-world labelled validation or fold uncertainty measured.
-- System SciPy 1.15.3 fails loading a binary on this macOS; isolated SciPy 1.13.1 works. Use .venv/bin/python.
-- Practice validation has no labels; supplied README discloses 25 feature-independent ambiguous positives per full split.
+- Seven-day fan-in/fan-out flags saturate every transaction at these broad defaults; they are constant descriptions, not evidence that all activity is suspicious. Short-window and continuous features vary.
+- GS is also broad over 7d. Supervised usefulness, precision/recall and AP contribution are unmeasured; do not equate motif membership with suspicious classification.
+- Flow-ratio checks use all events in an anchored window, so larger-window flags need not contain smaller-window flags; final membership unions them.
+- Budget limits fail loudly rather than return partial detections. Existing baseline is a single heavily purged stress holdout; independent-world generalization remains unmeasured.
+- System SciPy 1.15.3 fails on this macOS; the pinned isolated SciPy 1.13.1 works. Always use .venv/bin/python.
 
 ## Next actions (in priority order)
-1. Use the verified graph/adjacency API for a separately authorized AML feature milestone; preserve transaction identity, direction and strict temporal ordering.
-2. Rebuild isolated fit/holdout graph contexts before any supervised feature evaluation; assess validation representativeness.
-3. Compare feature contributions through measured ablations only when model evaluation is requested; no detector or new estimator implemented yet.
+1. Inspect the extended schema and short-window feature distributions; preserve current descriptive thresholds and reproducibility artifacts.
+2. Recompute features on isolated fit/holdout graphs before any future supervised experiment.
+3. Measure feature ablations in a separately authorized modelling task; no model trained for these features yet.
 
 ## Important paths
-- feature_workspace/build_wallet_graph.py, tests/test_wallet_graph.py — graph implementation and focused tests.
-- feature_workspace/generated/wallet_graphs_v1/ — ignored lossless graph tables, manifests and summary.
-- reports/wallet_graphs.md, reports/wallet_graphs.json — graph statistics and reproducibility evidence.
-- feature_workspace/README.md, README.md — schema, definitions, API and exact commands.
-- feature_workspace/generated/transaction_tables_v1/, reports/transaction_preparation.{md,json} — preserved canonical inputs and detailed legs.
+- feature_workspace/aml_patterns.py, feature_workspace/prepare_aml_features.py, feature_workspace/aml_thresholds.json — detector logic/configuration.
+- feature_workspace/AML_PATTERNS.md, reports/aml_patterns.{md,json} — exact definitions, commands, counts and limits.
+- feature_workspace/generated/aml_features_v1/ — ignored extended tables, feature_schema.json and summary.json.
+- scripts/run_tests_parallel.py, tests/test_aml_patterns.py — multiprocessing test runner and detector tests.
+- feature_workspace/generated/{transaction_tables_v1,wallet_graphs_v1}/ — preserved canonical/graph inputs.
 - scripts/baseline.py, reports/baseline_metrics.json, outputs/baseline_wallet_seed0/ — preserved measured baseline.

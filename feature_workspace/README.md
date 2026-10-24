@@ -104,3 +104,14 @@ later_events = graph.outgoing(wallet, after=1788220800)
 Validation checks every original transaction appears exactly once, all prepared attributes remain equal by hash, directions match `ACCOUNT`/`Destination`, degree and volume aggregates reconcile, and split wallet/hash intersections are empty. Rebuilding from shuffled inputs and reloading saved files produce identical graphs. Source and earlier preparation artifacts are fingerprinted before/after. Eight new graph tests cover hand-calculated statistics, parallel/reverse/self edges, sink wallets, time windows, label neutrality, cross-split rejection, invalid inputs, original transaction checks and corrupted artifacts.
 
 Full train graphs are for offline analysis. For future supervised validation, rebuild graph contexts from the isolated fit/holdout payment subsets rather than using full train wallet statistics as held-out model features. No model training, label-derived statistic or pattern identifier is introduced by this graph stage.
+
+## AML motif feature stage
+
+The separately implemented [first-four-pattern stage](AML_PATTERNS.md) extends transactions with `aml_pattern` lists and numerical features for 1h, 24h and 7d windows. It reads the existing separate wallet graphs and uses configurable thresholds from `aml_thresholds.json`, without annotations or model training.
+
+```sh
+.venv/bin/python scripts/run_tests_parallel.py --workers 4
+.venv/bin/python -m feature_workspace.prepare_aml_features
+```
+
+Outputs are under `generated/aml_features_v1/`; counts and limitations are published in `../reports/aml_patterns.md`. This is a later feature stage: the original graph and canonical transaction artifacts stay unchanged. Motif presence is not a suspicion label.
