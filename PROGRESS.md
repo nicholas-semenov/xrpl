@@ -1,80 +1,75 @@
 # Project Progress — XRPL AML Scoring
 
 ## Current status
-- Stage: Preprocessing / transaction-level feature tables complete; baseline preserved.
-- Current objective: Use verified transaction tables for subsequent feature work while preserving split isolation and original data.
-- Last verified working outcome: All 15 requested fields generated for train/validation/test, detailed legs retained separately, conversion reports saved; 18 tests passed. Baseline AP remains 0.0835839760.
+- Stage: Features / wallet transaction graph foundation complete; baseline preserved.
+- Current objective: Preserve verified split-specific graphs for subsequent AML feature work; no pattern detectors or model training in this milestone.
+- Last verified working outcome: Three lossless directed wallet multigraphs generated and reconstructed deterministically; all 26 tests passed.
 
 ## Completed and verified
-- Read repository instructions and supplied README, `payments.py`, and starter notebook. No separate supplied `baseline.py` exists.
-- Initial audit: `scripts/audit_data.py`, `reports/data_audit.md`, `reports/data_audit.json`; all 12 training-package checksums passed.
-- Train: 40,131 transactions / 60,557 legs; practice validation: 33,862 / 55,897; test: 40,101 / 65,272. Each split has 151,200 blocks and 700 wallets; wallets/hashes are disjoint across splits.
-- Train has 1,250 positives and 38,881 negatives. All supplied payments are successful; audited joins, units, endpoints and rates passed.
-- Added `scripts/baseline.py`: supplied helper plus the notebook's 12 features, StandardScaler and balanced L2 logistic regression. No advanced motif detector or alternative estimator added.
-- Added pinned `requirements-baseline.txt`, root `README.md`, and measured `reports/baseline_metrics.json` with source/artifact hashes, parameters, coefficients and timings.
-- Added six focused tests in `tests/test_baseline.py`; all passed, including parity with supplied notebook functions and leakage/metric checks.
-- Model, full split manifest, holdout scores and metrics exist under `outputs/baseline_wallet_seed0/`; generated outputs and `.venv/` are Git-ignored and reproducible.
-- CSV coverage/numeric round-trip and saved model prediction round-trip passed. No practice/test predictions produced.
-- Added `feature_workspace/` with ignored generated-output folder and checked paths. Removed the unused empty `notebooks/` directory at the user's request.
-- Three new tests verify valid destinations and rejection of absolute paths, parent traversal and symlinks into source data.
-- Added `feature_workspace/prepare_transactions.py` and nine tests: first/last executed amounts, issuer identity, UTC hourly rates, actual asset changes, safe joins and artifact preservation.
-- Produced `generated/transaction_tables_v1/{train,validation,test}/transactions.parquet` (15 columns, exact original transaction order) and `transfer_legs.parquet` (all original columns/types, sorted legs).
-- `reports/transaction_preparation.md` / `.json` contain split summaries, conversion distributions, top asset pairs and 12 sample calculations. All destination USD amounts match supplied `payments.py`.
-- Every input used in preparation has unchanged SHA-256; all 12 supplied training-package checksums still match. Output Parquet round-trips passed. Labels were not read; no model retrained.
+- Read repository instructions, supplied README, payments.py and starter notebook; no separate supplied baseline.py exists.
+- Initial audit: scripts/audit_data.py and reports/data_audit.{md,json}; all 12 supplied training-package checksums passed.
+- Train: 40,131 transactions / 60,557 raw legs; validation: 33,862 / 55,897; test: 40,101 / 65,272. Each split contains 700 wallets with disjoint addresses/hashes across splits.
+- Starter logistic baseline implemented in scripts/baseline.py; pinned environment, tests, commands and real metrics are recorded in README.md and reports/baseline_metrics.json.
+- Canonical preparation: feature_workspace/prepare_transactions.py generates all 15 fields and separately preserves detailed legs under generated/transaction_tables_v1/{split}/. The unused notebooks/ directory was removed.
+- Preparation checks pass for joins, ordered leg paths, issuer identity, normalized units, fees, hourly rates, hashes and Parquet round-trips. Every destination USD amount matches supplied payments.py.
+- Graph implementation: feature_workspace/build_wallet_graph.py provides build_wallet_graph(), load_wallet_graph(), WalletGraph.incoming()/outgoing(), split guards and statistics.
+- Generated edges.parquet, nodes.parquet and manifest.json under feature_workspace/generated/wallet_graphs_v1/{train,validation,test}/; all 15 prepared edge attributes retained exactly.
+- reports/wallet_graphs.{md,json} and generated/wallet_graphs_v1/summary.json contain measured degrees, volumes, count distributions, provenance, hashes and validation results.
+- Eight graph tests added in tests/test_wallet_graph.py. Full suite: 26 tests passed, covering parallel/reverse/self edges, sink wallets, exact attributes, temporal adjacency, labels, split separation, original records and reload corruption.
+- Graphs rebuilt identically from shuffled inputs, reloaded losslessly and rerun with existing artifacts. Original transaction and all prior preparation artifact hashes remain unchanged.
+- No AML detectors, pattern IDs, label-derived graph inputs or new ML models added. Existing baseline code, scores and model artifacts are preserved.
 
 ## Decisions and assumptions
-- `RULES.md` is canonical; actual dataset README permits full-window offline investigation. This baseline is not causal/live detection.
-- Baseline evaluation uses only labelled train inputs. New transaction preparation independently reads all three splits without labels or annotations; identifiers remain alignment fields, not model features.
-- Source graph has one connected component over 700 customer wallets. Fixed seed 0 splits sorted wallets 350/350, excludes crossing customer payments, then purges fit rows sharing holdout scenario/cohort IDs.
-- Null scenario/cohort values are not treated as a shared group. Group metadata only enforces exclusion or supports post-fit diagnostics, never predictors.
-- Fit and holdout features use separately retained payments; all purged payments are excluded from both contexts. Scaler, class weights and coefficients fit on fit rows only.
-- Retain exact starter features; stable timestamp/hash tie ordering ensures alignment. Helper-projected VALUE is reference USD, not raw XRP/token VALUE.
-- Future feature writers use `feature_workspace.paths.TRAIN_INPUT` for reads and `output_path(...)` for outputs under `feature_workspace/generated/`. Source files and filesystem permissions are unchanged.
-- Canonical source/destination amounts come from normalized VALUE after validating SOURCE_VALUE units. Prices match full asset identity and containing UTC hour independently; SendMax and summed leg values are never transaction spending.
-- Conversion steps count adjacent issuer+symbol changes, not extra legs; intermediaries count distinct execution-path addresses excluding sender/receiver. These are liquidity providers in supplied conversions, not AML hops.
+- Actual dataset README permits full seven-day offline graph context; future-within-window activity is not a causal live-detection benchmark.
+- One graph edge is one actual customer payment SENDER → RECEIVER, keyed by TRANSACTION_HASH; repeated pairs are separate edges.
+- Only prepared transaction tables construct the graphs. Original transaction columns are read separately to validate coverage/direction/time; labels and raw conversion legs are not parsed for graph construction.
+- Nodes are unique payment endpoints; conversion legs/intermediary counts never create extra graph nodes/edges or imply AML layering.
+- Edges and adjacency are ordered by TIMESTAMP, then hash. Equal timestamps have deterministic ordering only; a strictly later hop requires a greater timestamp.
+- IN_DEGREE/OUT_DEGREE count transaction edges; UNIQUE_IN/OUT_NEIGHBORS count counterparties. TRANSACTION_COUNT counts distinct incident hashes, with self-loops counted once.
+- Incoming USD sums DESTINATION_AMOUNT_USD; outgoing USD sums SOURCE_AMOUNT_USD. Conversion valuations can differ; fees remain separate XRP attributes.
+- Raw/processed data remain inputs; generated outputs use checked paths in feature_workspace/paths.py. Differing existing graph artifacts are refused; choose a new --run-name for changed definitions.
+- Full train graph statistics must not be reused across supervised fit/holdout boundaries; rebuild graph contexts separately from retained subsets.
+- Source/destination amounts use actual first/last executed VALUE after unit checks, not SendMax or summed conversion-leg values. Assets retain issuer identity.
 
 ## Results and checks
-- Validation: one fixed wallet/scenario/cohort-isolated offline holdout, seed 0; no AP-based split/parameter search.
-- Fit: 4,949 rows / 169 positives; holdout: 10,112 / 262; purged: 25,070 / 819. Wallet, transaction, non-null scenario and cohort overlap: zero.
-- AP: **0.08358397603315604** (`100 × AP = 8.3583976033`), run `starter_logistic_wallet_seed0`; not a test leaderboard score.
-- ROC-AUC: **0.734895570969117**; Precision@1%: **0.1568627451**; Recall@1%: **0.0610687023**. Top ceil(1% × 10,112) = 102 contains 16 positives; hash ascending breaks ties.
-- Holdout positive share: 2.591%; 10,112 distinct finite scores in [0,1]. Logistic solver converged in 17 iterations.
-- Working setup: `python3 -m venv .venv`; `.venv/bin/python -m pip install --no-cache-dir -r requirements-baseline.txt`.
-- Working checks: `.venv/bin/python -m pip check`; `.venv/bin/python -m unittest discover -s tests -v` (18 passed after transaction preparation).
-- Workspace checks: `.venv/bin/python -m unittest discover -s tests -p 'test_feature_workspace.py' -v` (3 passed); `git check-ignore feature_workspace/generated/train_features.parquet` confirmed generated tables are ignored.
-- Working run: `.venv/bin/python scripts/baseline.py` (about 2.5 seconds on Apple arm64/macOS 27.0.1, excluding dependency setup).
-- Repeat: `.venv/bin/python scripts/baseline.py --output-dir outputs/baseline_repeat --report outputs/baseline_repeat/metrics.json`; exact comparison command is in README and passed.
-- Baseline environment: Python 3.10.15; NumPy 2.2.6, pandas 2.3.0, PyArrow 23.0.0, SciPy 1.13.1, scikit-learn 1.7.2; full dependencies pinned, BLAS fitting/prediction threads=1.
-- Preparation command: `.venv/bin/python -m feature_workspace.prepare_transactions`; repeated successfully with existing identical artifacts. Different content is refused; change `--run-name` for changed definitions.
-- Conversion counts (transactions / actual steps / percentage): train 16,450 / 20,426 / 40.9908%; validation 17,798 / 22,035 / 52.5604%; test 20,261 / 25,171 / 50.5249%.
-- Step distributions 0/1/2: train 23,681/12,474/3,976; validation 16,064/13,561/4,237; test 19,840/15,351/4,910. No missing endpoint prices or null canonical values.
+- Graph counts (nodes / edges / directed wallet pairs): train 700 / 40,131 / 22,315; validation 700 / 33,862 / 18,773; test 700 / 40,101 / 22,557.
+- Each graph: 676 unique senders, 700 unique receivers, 676 wallets with both directions, 24 incoming-only wallets; zero self-loops and zero cross-split wallet/hash intersections.
+- Incoming/outgoing USD totals: train 5,677,308.097102 / 5,684,000.818105; validation 5,202,975.393174 / 5,215,014.360740; test 5,580,437.289433 / 5,591,795.039585.
+- Mean in/out transaction degree: train 57.3300; validation 48.3743; test 57.2871. Exact histograms and min/median/percentile/max statistics are in graph reports.
+- Conversion transactions / actual steps: train 16,450 / 20,426; validation 17,798 / 22,035; test 20,261 / 25,171. Prior preparation reports are unchanged.
+- Baseline validation: seed 0 wallet split plus scenario/cohort purging; fit 4,949 / 169 positives; holdout 10,112 / 262; purged 25,070 / 819; no shared wallet/hash/group identities.
+- Baseline AP 0.08358397603315604 (100×AP 8.3583976033); ROC-AUC 0.734895570969117; Precision@1% 0.1568627451; Recall@1% 0.0610687023 (16 positives in top 102). No new AP measured.
+- Environment: Python 3.10.15; NumPy 2.2.6, pandas 2.3.0, PyArrow 23.0.0, SciPy 1.13.1, scikit-learn 1.7.2. Full dependencies pinned in requirements-baseline.txt; graphs add no dependency.
+- Working setup: python3 -m venv .venv; .venv/bin/python -m pip install --no-cache-dir -r requirements-baseline.txt.
+- Working graph command: .venv/bin/python -m feature_workspace.build_wallet_graph.
+- Working verification: .venv/bin/python -m unittest discover -s tests -v (26 passed).
+- Working preparation: .venv/bin/python -m feature_workspace.prepare_transactions.
+- Working baseline: .venv/bin/python scripts/baseline.py; repeat/score comparison commands remain in README.md.
 
 ## Git synchronization
-- Branch/upstream: `master` / `origin/master`; origin `https://github.com/nicholas-semenov/xrpl.git`.
-- Last successful pull: 2026-10-24 at `62730a8`, already up to date (previous audit session).
-- Current session pull skipped: unrelated tracked `.DS_Store` modification existed at startup and is preserved; no stash/reset/discard performed.
-- Last verified commit/push before transaction preparation: `486126e` successfully pushed to `origin/master`.
-- Preparation module, tests, reports, notebook-folder removal, documentation and progress prepared for commit/push; final hash/outcome reported in session handoff. Existing `.DS_Store` modification is excluded.
-- Git metadata/network operations require sandbox escalation; no force-push or destructive operation authorized.
+- Branch/upstream: master / origin/master; origin https://github.com/nicholas-semenov/xrpl.git.
+- Last successful pull: 2026-10-24 at 62730a8, already up to date (prior audit session).
+- Current session pull skipped because pre-existing tracked .DS_Store and data/.DS_Store modifications plus untracked feature_workspace/.DS_Store were present; all preserved and excluded.
+- Last verified commit/push before graph work: 4b4e41e successfully pushed to origin/master.
+- Graph code, tests, reports, documentation and progress prepared for commit/push; final commit hash and actual outcome reported in session handoff.
+- No stash/reset/discard/force-push used. Git metadata/network writes require sandbox escalation.
 
 ## Blockers / risks
-- This is one stress holdout, not an independent complete synthetic week; no confidence interval or fold variability measured.
-- Purging removes 62.47% of rows and truncates paths/scenarios. Fit retains no cohort-annotated rows; fit has only 12 hard positives and holdout 17 (159 easy / 86 medium).
-- Training/holdout span the same calendar week; future calendar drift and full-world generalization remain untested. AP is not a guaranteed lower bound for leaderboard performance.
-- System SciPy 1.15.3 and its fresh wheel failed loading a PROPACK binary on this macOS; isolated SciPy 1.13.1 works. Always use `.venv/bin/python`.
-- Practice validation has no labels. README discloses 25 feature-independent ambiguous positives per full split. No hidden-label or external transaction data use.
+- No graph integrity issue found. Hash tie ordering does not establish temporal causality for equal-time events.
+- Full-week graph statistics describe supplied synthetic histories; future supervised validation must preserve fit/holdout isolation.
+- Existing baseline is one stress holdout, purging 62.47% of rows and truncating scenarios; fit has 12 hard positives and holdout 17. No independent-world labelled validation or fold uncertainty measured.
+- System SciPy 1.15.3 fails loading a binary on this macOS; isolated SciPy 1.13.1 works. Use .venv/bin/python.
+- Practice validation has no labels; supplied README discloses 25 feature-independent ambiguous positives per full split.
 
 ## Next actions (in priority order)
-1. Use verified canonical transaction fields for the next feature milestone; preserve original data, raw legs and baseline artifacts.
-2. Apply baseline fit/holdout isolation before computing future wallet histories; assess validation representativeness before comparing feature improvements.
-3. Evaluate feature contributions only through measured ablations in a subsequent modelling task; no additional estimator authorized yet.
+1. Use the verified graph/adjacency API for a separately authorized AML feature milestone; preserve transaction identity, direction and strict temporal ordering.
+2. Rebuild isolated fit/holdout graph contexts before any supervised feature evaluation; assess validation representativeness.
+3. Compare feature contributions through measured ablations only when model evaluation is requested; no detector or new estimator implemented yet.
 
 ## Important paths
-- `README.md` — exact commands, feature/algorithm explanation, measured results and validation limitations.
-- `feature_workspace/README.md`, `feature_workspace/paths.py` — feature workspace and checked output paths; `feature_workspace/generated/` — ignored derived files.
-- `feature_workspace/prepare_transactions.py`, `reports/transaction_preparation.md`, `reports/transaction_preparation.json` — canonical preparation and conversion findings.
-- `scripts/baseline.py`, `tests/test_baseline.py`, `requirements-baseline.txt` — executable baseline and verification.
-- `reports/baseline_metrics.json` — canonical measured result, configuration and fingerprints.
-- `outputs/baseline_wallet_seed0/` — local split.csv, holdout_predictions.csv, model.joblib, metrics.json (ignored).
-- `reports/data_audit.md`, `reports/data_audit.json`, `scripts/audit_data.py` — prior verified audit.
-- `data/traning_data/` — supplied training/practice package (on-disk spelling); `data/test_data/` — test inputs, unused in baseline evaluation.
+- feature_workspace/build_wallet_graph.py, tests/test_wallet_graph.py — graph implementation and focused tests.
+- feature_workspace/generated/wallet_graphs_v1/ — ignored lossless graph tables, manifests and summary.
+- reports/wallet_graphs.md, reports/wallet_graphs.json — graph statistics and reproducibility evidence.
+- feature_workspace/README.md, README.md — schema, definitions, API and exact commands.
+- feature_workspace/generated/transaction_tables_v1/, reports/transaction_preparation.{md,json} — preserved canonical inputs and detailed legs.
+- scripts/baseline.py, reports/baseline_metrics.json, outputs/baseline_wallet_seed0/ — preserved measured baseline.

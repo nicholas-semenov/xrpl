@@ -61,3 +61,46 @@ Conversion count is independent of transfer count: same-asset extra legs count a
 Checks cover unique keys, exact leg coverage, matching ledger metadata, contiguous indices, continuous executed paths, endpoints, delivered JSON, units, fees, hourly price coverage, and finite outputs. Every destination USD value is cross-checked against the supplied `payments.py`. Both output Parquet tables are read back and compared. Existing tables with different content are refused: use a new `--run-name transaction_tables_v2` for future changed definitions.
 
 These transaction-local fields do not learn statistics from other rows. When adding wallet-history features later, retain split isolation from the baseline and never combine synthetic worlds.
+
+## Wallet transaction graphs
+
+Build all three independent payment graphs with:
+
+```sh
+.venv/bin/python -m feature_workspace.build_wallet_graph
+.venv/bin/python -m unittest discover -s tests -v
+```
+
+The builder reads only the prepared `transaction_tables_v1/{split}/transactions.parquet` tables for construction. Original transaction keys, senders, destinations and timestamps are read separately for validation. Detailed transfer legs and labels are not parsed to construct the graph. Every graph uses its complete supplied seven-day payment history.
+
+A node is a unique `SENDER` or `RECEIVER` address. An edge is one directed `SENDER → RECEIVER` payment, identified by `TRANSACTION_HASH`. Repeated payments between a wallet pair remain separate edges. All 15 canonical columns are retained as edge attributes, including the 11 requested fields. `TRANSFER_COUNT` and `INTERMEDIARY_COUNT` remain attributes only; they never expand a payment into additional edges or intermediary nodes. A liquidity-provider address may still be a node if it independently appears as an actual user-payment endpoint.
+
+Lossless graph files live under `generated/wallet_graphs_v1/{train,validation,test}/`:
+
+- `edges.parquet`: the 15 canonical fields, sorted by `(TIMESTAMP, TRANSACTION_HASH)`. Original numeric values and types are preserved exactly.
+- `nodes.parquet`: one row per wallet, sorted by address. Contains `WALLET`, `IN_DEGREE`, `OUT_DEGREE`, `TOTAL_DEGREE`, `UNIQUE_IN_NEIGHBORS`, `UNIQUE_OUT_NEIGHBORS`, `INCOMING_USD`, `OUTGOING_USD`, `TRANSACTION_COUNT`, `FIRST_TIMESTAMP`, `LAST_TIMESTAMP`.
+- `manifest.json`: split identity, edge key/order, input fingerprint, graph counts and output hashes.
+
+`generated/wallet_graphs_v1/summary.json` and `../reports/wallet_graphs.json` / `.md` contain measured statistics, degree summaries, transaction-count histograms, provenance and integrity results. Generated row-level artifacts stay outside Git. Existing differing graph tables/manifests are refused; use `--run-name wallet_graphs_v2` for changed definitions.
+
+`IN_DEGREE` and `OUT_DEGREE` count transaction edges, while unique-neighbor columns count distinct counterparties. `TRANSACTION_COUNT` counts distinct incident transactions. A self-payment is one graph edge and one incident transaction but contributes one to each directional degree. Sink/source-only wallets are preserved. Incoming USD sums delivered values; outgoing USD sums spent values. These sums need not be equal for conversions, and neither includes the separately recorded XRP network fees.
+
+Reusable access:
+
+```python
+from feature_workspace.build_wallet_graph import load_wallet_graph
+from feature_workspace.paths import output_path
+
+graph = load_wallet_graph(output_path("wallet_graphs_v1/train"), "train")
+wallet = graph.nodes.WALLET.iloc[0]
+outgoing_events = graph.outgoing(wallet)
+incoming_events = graph.incoming(wallet)
+later_events = graph.outgoing(wallet, after=1788220800)
+# Optional through=... gives an inclusive upper time bound.
+```
+
+`build_wallet_graph(dataframe, split)` also builds the representation from a canonical subset, so future validation can rebuild fit and holdout contexts separately. Queries return chronological copies; do not mutate the graph's internal `edges` or `nodes` tables. Hash ordering resolves equal timestamps deterministically, not causally: a strictly later path hop must have a strictly greater timestamp. The query's `after` boundary enforces that rule. No path enumeration or AML pattern detection is implemented.
+
+Validation checks every original transaction appears exactly once, all prepared attributes remain equal by hash, directions match `ACCOUNT`/`Destination`, degree and volume aggregates reconcile, and split wallet/hash intersections are empty. Rebuilding from shuffled inputs and reloading saved files produce identical graphs. Source and earlier preparation artifacts are fingerprinted before/after. Eight new graph tests cover hand-calculated statistics, parallel/reverse/self edges, sink wallets, time windows, label neutrality, cross-split rejection, invalid inputs, original transaction checks and corrupted artifacts.
+
+Full train graphs are for offline analysis. For future supervised validation, rebuild graph contexts from the isolated fit/holdout payment subsets rather than using full train wallet statistics as held-out model features. No model training, label-derived statistic or pattern identifier is introduced by this graph stage.
